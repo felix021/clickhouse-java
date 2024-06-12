@@ -22,14 +22,8 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -56,6 +50,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     private final List<String> sqlParts;
     private final ClickHousePreparedStatementParameter[] binds;
     private final List<List<String>> parameterList;
+    private final List<String> parameters;
     private final boolean insertBatchMode;
     private List<byte[]> batchRows = new ArrayList<>();
 
@@ -75,6 +70,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
         PreparedStatementParser parser = PreparedStatementParser.parse(sql,
             parsedStmt.getEndPosition(ClickHouseSqlStatement.KEYWORD_VALUES));
         this.parameterList = parser.getParameters();
+        this.parameters = ClickHouseUtil.buildParametersInOneDimension(parameterList);
         this.insertBatchMode = parser.isValuesMode();
         this.sqlParts = parser.getParts();
         int numParams = countNonConstantParams();
@@ -626,14 +622,10 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     private String getParameter(int paramIndex) {
-        for (int i = 0, count = paramIndex; i < parameterList.size(); i++) {
-            List<String> pList = parameterList.get(i);
-            count -= pList.size();
-            if (count < 0) {
-                return pList.get(pList.size() + count);
-            }
+        if (paramIndex >= parameters.size()) {
+            return null;
         }
-        return null;
+        return parameters.get(paramIndex);
     }
 
     @Override

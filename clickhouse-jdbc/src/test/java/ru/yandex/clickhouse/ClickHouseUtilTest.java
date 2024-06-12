@@ -3,6 +3,10 @@ package ru.yandex.clickhouse;
 
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
@@ -27,5 +31,23 @@ public class ClickHouseUtilTest {
         } catch (IllegalArgumentException ex) {
             // pass, it's ok
         }
+    }
+
+    @Test
+    public void testBuildCoordinateMap() {
+        // prepare
+        List<List<String>> parameterList = new ArrayList<>();
+        parameterList.add(Arrays.asList("a", "b"));
+        parameterList.add(Arrays.asList("c", "d"));
+
+        // execute
+        List<String> result = ClickHouseUtil.buildParametersInOneDimension(parameterList);
+
+        // check
+        assertEquals(result.size(), 4);
+        assertEquals(result.get(0), "a");
+        assertEquals(result.get(1), "b");
+        assertEquals(result.get(2), "c");
+        assertEquals(result.get(3), "d");
     }
 }

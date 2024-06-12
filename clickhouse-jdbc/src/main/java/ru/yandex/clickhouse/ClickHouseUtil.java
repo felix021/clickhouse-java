@@ -1,10 +1,9 @@
 package ru.yandex.clickhouse;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ClickHouseUtil {
+    public static final boolean butnoiceCustomizedVersionRequired = true;
     private static final Map<Character, String> escapeMapping;
 
     static {
@@ -52,4 +51,17 @@ public class ClickHouseUtil {
         sb.append('`');
         return sb.toString();
     }
+
+    public static List<String> buildParametersInOneDimension(List<List<String>> parameterList) {
+        int totalCount = 0;
+        for (List<String> strings : parameterList) {
+            totalCount += strings.size();
+        }
+        List<String> result = new ArrayList<>(totalCount);
+        for (List<String> pList : parameterList) {
+            result.addAll(pList);
+        }
+        return result;
+    }
+
 }
